@@ -29,19 +29,19 @@
 
       <nav class="navbar navbar-dark bg-dark">
         <!-- Non-mobile screens -->
-        <a class="navbar-brand text-truncate d-none d-sm-block" href="/apps/weather-dashboard/">
+        <a class="navbar-brand text-truncate d-none d-sm-block" href="/">
           <i class="fas fa-cloud-sun"></i>
           Weather Dashboard - {{ village || town || city || county }}, {{ state || country }}
         </a>
         <!-- Mobile screens -->
-        <a class="navbar-brand d-block d-sm-none" href="/apps/weather-dashboard/">
+        <a class="navbar-brand d-block d-sm-none" href="/">
           <i class="fas fa-cloud-sun"></i>
           Weather Dashboard
           <br />
           {{ village || town || city || county }}, {{ state || country }}
         </a>
         <div class="form-inline">
-          <form class="my-2 my-lg-0" action="/apps/weather-dashboard/" method="GET">
+          <form class="my-2 my-lg-0" action="/" method="GET">
             <input class="form-control mr-sm-2" type="search" id="location" name="location" placeholder="Location" aria-label="Search">
             <button class="btn btn-md btn-outline-light my-2 my-sm-0 mr-2" type="submit">
               &thinsp;Go&thinsp;
