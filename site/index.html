@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+  <head>
+    <title>Weather Dashboard</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="https://algorithmia.com/v1/clients/js/algorithmia-0.2.1.js" type="text/javascript"></script>
+
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/annotations.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+    <script src="https://code.highcharts.com/modules/series-label.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.28/moment-timezone-with-data.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="/css/weather-dashboard.css">
+    <script src="/js/weather-dashboard.js"></script>
+
+  </head>
+
+  <body>
+
+    <div class="container" id="app" v-cloak>
+
+      <nav class="navbar navbar-dark bg-dark">
+        <!-- Non-mobile screens -->
+        <a class="navbar-brand text-truncate d-none d-sm-block" href="/apps/weather-dashboard/">
+          <i class="fas fa-cloud-sun"></i>
+          Weather Dashboard - {{ village || town || city || county }}, {{ state || country }}
+        </a>
+        <!-- Mobile screens -->
+        <a class="navbar-brand d-block d-sm-none" href="/apps/weather-dashboard/">
+          <i class="fas fa-cloud-sun"></i>
+          Weather Dashboard
+          <br />
+          {{ village || town || city || county }}, {{ state || country }}
+        </a>
+        <div class="form-inline">
+          <form class="my-2 my-lg-0" action="/apps/weather-dashboard/" method="GET">
+            <input class="form-control mr-sm-2" type="search" id="location" name="location" placeholder="Location" aria-label="Search">
+            <button class="btn btn-md btn-outline-light my-2 my-sm-0 mr-2" type="submit">
+              &thinsp;Go&thinsp;
+            </button>
+            <button class="btn btn-md btn-outline-light my-2 my-sm-0" onclick="getLocation();" type="button">
+              &thinsp;<i class="fas fa-location-arrow"></i>&thinsp;
+            </button>
+          </form>
+        </div>
+      </nav>
+
+      <div class="row">
+        &nbsp;
+      </div>
+
+      <!-- Non-mobile screens -->
+      <div class="row d-none d-sm-block">
+        <div class="container">
+          <div class="row">
+            <div class="col text-center text-white bg-danger rounded m-1 p-3">
+              <h5>
+                {{ current_temperature }} °F ({{ current_apparent_temperature }} °F)
+              </h5>
+              <p>Current Temperature</p>
+              <div class="icon"><i class="fas fa-thermometer-three-quarters"></i></div>
+            </div>
+            <div class="col text-center text-white bg-success rounded m-1 p-3">
+              <h5>{{ current_humidity }}%</h5>
+              <p>Current Humidity</p>
+              <div class="icon d-none d-sm-block"><i class="fas fa-tint"></i></div>
+            </div>
+            <div class="col text-center text-white bg-secondary rounded m-1 p-3">
+              <h5>{{ current_wind_speed }} mph</h5>
+              <p>Current Wind Speed</p>
+              <div class="icon d-none d-sm-block"><i class="fas fa-wind"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile screens -->
+      <div class="row d-block d-sm-none">
+        <div class="container">
+          <div class="row">
+            <div class="col text-center text-white bg-danger rounded m-1 p-3">
+              <h5>
+                {{ current_temperature }} °F
+                <br />
+                ({{ current_apparent_temperature }} °F)
+              </h5>
+              <p>Temperature</p>
+            </div>
+            <div class="col text-center text-white bg-info rounded m-1 p-3">
+              <h5>{{ current_humidity }}%</h5>
+              <br />
+              <p>Humidity</p>
+              <div class="icon d-none d-sm-block"><i class="fas fa-tint"></i></div>
+            </div>
+            <div class="col text-center text-white bg-success rounded m-1 p-3">
+              <h5>{{ current_wind_speed }} mph</h5>
+              <br />
+              <p>Wind</p>
+              <div class="icon d-none d-sm-block"><i class="fas fa-wind"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        &nbsp;
+      </div>
+
+      <div class="row">
+        <div id="container" style="width:100%; height:70vh"></div>
+      </div>
+
+    </div>
+
+  </body>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+
+</html>
