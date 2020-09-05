@@ -37,7 +37,7 @@ var input_location = window.value || "Austin, TX"
 
 var input = {"location": input_location};
 Algorithmia.client("simTS7wndR7Mfcm5OGkylKw5JFt1")
-  .algo("koverholt/weather_dashboard/0.1.0?timeout=300")
+  .algo("koverholt/WeatherDashboard/1.0.0?timeout=300")
   .pipe(input)
   .then(function(output) {
     var obj = output.result;
