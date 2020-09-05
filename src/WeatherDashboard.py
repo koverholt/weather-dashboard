@@ -11,7 +11,7 @@ from datetime import timedelta
 from delorean import Delorean
 
 client = Algorithmia.client()
-secrets = json.loads(client.file("data://.my/weather_dashboard/credentials.json").getString())
+secrets = json.loads(client.file("data://koverholt/WeatherDashboard/credentials.json").getString())
 
 try:
     DARKSKY_API_KEY = secrets["darksky-api-key"]
