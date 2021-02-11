@@ -176,6 +176,7 @@ def apply(request):
         'Access-Control-Allow-Methods': 'GET, POST'
     }
 
-    location = request.args.get("location", "Austin, TX")
+    request_json = request.get_json(silent=True)
+    location = request_json.get("location", "Austin, TX")
     result = forecast(location)
     return (result, 200, headers)
