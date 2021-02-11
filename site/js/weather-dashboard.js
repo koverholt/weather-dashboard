@@ -41,8 +41,7 @@ request.open('POST', 'https://us-central1-koverholt-apps-304316.cloudfunctions.n
 request.send(input);
 
 request.onload = function () {
-    var obj = JSON.parse(this.response)
-    // var obj = output.result;
+    var obj = this.response
     var location_not_found = obj["location_not_found"];
     var village = obj["village"];
     var town = obj["town"];
