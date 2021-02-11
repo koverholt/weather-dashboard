@@ -180,9 +180,9 @@ def apply(request):
         return ('', 204, headers)
 
     headers = {
-        'Access-Control-Allow-Headers': 'Content-Type',
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST'
+        'Access-Control-Allow-Methods': 'GET, POST',
+        'Access-Control-Allow-Headers': 'Content-Type'
     }
 
     request_json = request.get_json(silent=True)
