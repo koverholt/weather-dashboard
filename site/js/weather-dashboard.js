@@ -34,12 +34,12 @@ var param = new Vue({
 */
 
 var input_location = window.value || "Austin, TX";
-var input = JSON.stringify({"location": input_location});
+var input = {"location": input_location};
 
 var xhr = new XMLHttpRequest();
 xhr.open("POST", "https://us-central1-koverholt-apps-304316.cloudfunctions.net/weather-dashboard");
 xhr.setRequestHeader("Content-Type", "application/json");
-xhr.send(input);
+xhr.send(JSON.stringify(input));
 
 xhr.onload = function () {
     var obj = JSON.parse(this.response)
