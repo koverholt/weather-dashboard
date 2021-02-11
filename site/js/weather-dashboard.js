@@ -34,14 +34,15 @@ var param = new Vue({
 */
 
 var input_location = window.value || "Austin, TX";
-var input = JSON.stringify({location: input_location});
+var input = JSON.stringify({"location": input_location});
 
-const request = new XMLHttpRequest();
-request.open('POST', 'https://us-central1-koverholt-apps-304316.cloudfunctions.net/weather-dashboard');
-request.setRequestHeader('Content-Type', 'application/json');
-request.send('{"location":"Houston, TX"}');
+var xhr = new XMLHttpRequest();
+xhr.open("POST", "https://us-central1-koverholt-apps-304316.cloudfunctions.net/weather-dashboard");
+xhr.setRequestHeader("Content-Type", "application/json");
+xhr.setRequestHeader("Accept", "application/json, text/javascript");
+xhr.send('{"location":"Houston, TX"}');
 
-request.onload = function () {
+xhr.onload = function () {
     var obj = JSON.parse(this.response)
     var location_not_found = obj["location_not_found"];
     var village = obj["village"];
