@@ -39,8 +39,7 @@ var input = JSON.stringify({"location": input_location});
 var xhr = new XMLHttpRequest();
 xhr.open("POST", "https://us-central1-koverholt-apps-304316.cloudfunctions.net/weather-dashboard");
 xhr.setRequestHeader("Content-Type", "application/json");
-xhr.setRequestHeader("Accept", "application/json, text/javascript");
-xhr.send('{"location":"Houston, TX"}');
+xhr.send(input);
 
 xhr.onload = function () {
     var obj = JSON.parse(this.response)
