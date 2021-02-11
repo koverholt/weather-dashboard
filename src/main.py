@@ -1,4 +1,3 @@
-import Algorithmia
 import json
 import os
 import requests
@@ -10,18 +9,13 @@ from darksky.types import languages, units, weather
 from datetime import timedelta
 from delorean import Delorean
 
-client = Algorithmia.client()
-secrets = json.loads(client.file("data://koverholt/WeatherDashboard/credentials.json").getString())
-
 try:
-    DARKSKY_API_KEY = secrets["darksky-api-key"]
+    DARKSKY_API_KEY = os.environ["DARKSKY_API_KEY"]
 except KeyError:
     print("Missing DARKSKY_API_KEY. Exiting.")
     sys.exit()
 
-def forecast(input):
-    location = input["location"]
-
+def forecast(location):
     r = requests.get("https://nominatim.openstreetmap.org/search/" + location + "?format=json&limit=1&addressdetails=1")
     data = r.json()
 
@@ -166,9 +160,21 @@ def forecast(input):
 
     return resp
 
+def apply(request):
+    """Responds to any HTTP request.
+    Args:
+        request (flask.Request): HTTP request object.
+    Returns:
+        The response text or any set of values that can be turned into a
+        Response object using
+        `make_response <http://flask.pocoo.org/docs/1.0/api/#flask.Flask.make_response>`.
+    """
 
-def apply(input):
-    return forecast(input)
+    headers = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET'
+    }
 
-if __name__ == "__main__":
-    apply(input)
+    location = request.args.get("location", "Austin, TX")
+    result = forecast(location)
+    return (result, 200, headers)

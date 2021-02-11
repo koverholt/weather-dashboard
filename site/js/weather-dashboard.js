@@ -33,14 +33,16 @@ var param = new Vue({
  Query
 */
 
-var input_location = window.value || "Austin, TX"
-
+var input_location = window.value || "Austin, TX";
 var input = {"location": input_location};
-Algorithmia.client("simTS7wndR7Mfcm5OGkylKw5JFt1")
-  .algo("koverholt/WeatherDashboard/1.0.0?timeout=300")
-  .pipe(input)
-  .then(function(output) {
-    var obj = output.result;
+
+var request = new XMLHttpRequest()
+request.open('POST', 'https://us-central1-koverholt-apps-304316.cloudfunctions.net/weather-dashboard', true);
+request.send(input);
+
+request.onload = function () {
+    var obj = JSON.parse(this.response)
+    // var obj = output.result;
     var location_not_found = obj["location_not_found"];
     var village = obj["village"];
     var town = obj["town"];
@@ -554,4 +556,4 @@ Algorithmia.client("simTS7wndR7Mfcm5OGkylKw5JFt1")
                 split: true,
             },
         });
-});
+};
