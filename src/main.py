@@ -171,8 +171,9 @@ def apply(request):
     """
 
     headers = {
+        'Access-Control-Allow-Headers': 'Content-Type',
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET'
+        'Access-Control-Allow-Methods': 'GET, POST'
     }
 
     location = request.args.get("location", "Austin, TX")
