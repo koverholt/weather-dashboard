@@ -40,9 +40,9 @@ var request = new XMLHttpRequest()
 request.open('POST', 'https://us-central1-koverholt-apps-304316.cloudfunctions.net/weather-dashboard', true);
 request.setRequestHeader('Content-Type', 'application/json');
 request.send(input);
-console.log(request.response)
 
 request.onload = function () {
+    console.log(this.response);
     var obj = JSON.parse(this.response)
     var location_not_found = obj["location_not_found"];
     var village = obj["village"];
