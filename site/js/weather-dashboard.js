@@ -34,7 +34,8 @@ var param = new Vue({
 */
 
 var input_location = window.value || "Austin, TX";
-var input = {"location": input_location};
+var input = JSON.stringify({"location": input_location});
+console.log(input)
 
 var request = new XMLHttpRequest()
 request.open('POST', 'https://us-central1-koverholt-apps-304316.cloudfunctions.net/weather-dashboard', true);
