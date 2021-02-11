@@ -165,7 +165,7 @@ request.onload = function () {
                         x: forecast_days[0],
                         y: annotations_labels_point_y_forecast,
                     },
-                    text: forecast_condition[0],
+                    text: "dogs",
                     align: "left",
                     x: 10,
                     y: 0,
