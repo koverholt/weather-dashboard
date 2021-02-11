@@ -107,31 +107,31 @@ request.onload = function () {
     var forecast_condition = {};
     for (i = 0; i < forecast_days.length; i++) {
       if (daily_forecast_icons[i] == "clear-day") {
-        forecast_condition[i] = "<center>Clear</center>";
+        forecast_condition[i] = "Clear";
       }
       else if (daily_forecast_icons[i] == "rain") {
-        forecast_condition[i] = "<center>Rain</center>";
+        forecast_condition[i] = "Rain";
       }
       else if (daily_forecast_icons[i] == "snow") {
-        forecast_condition[i] = "<center>Snow</center>";
+        forecast_condition[i] = "Snow";
       }
       else if (daily_forecast_icons[i] == "sleet") {
-        forecast_condition[i] = "<center>Sleet</center>";
+        forecast_condition[i] = "Sleet";
       }
       else if (daily_forecast_icons[i] == "wind") {
-        forecast_condition[i] = "<center>Wind</center>";
+        forecast_condition[i] = "Wind";
       }
       else if (daily_forecast_icons[i] == "fog") {
-        forecast_condition[i] = "<center>Fog</center>";
+        forecast_condition[i] = "Fog";
       }
       else if (daily_forecast_icons[i] == "cloudy") {
-        forecast_condition[i] = "<center>Mostly Cloudy</center>";
+        forecast_condition[i] = "Mostly Cloudy";
       }
       else if (daily_forecast_icons[i] == "partly-cloudy-day") {
-        forecast_condition[i] = "<center>Partly Cloudy</center>";
+        forecast_condition[i] = "Partly Cloudy";
       }
       else {
-        forecast_condition[i] = "<center>Clear</center>";
+        forecast_condition[i] = "Clear";
       }
     }
 
@@ -165,7 +165,7 @@ request.onload = function () {
                         x: forecast_days[0],
                         y: annotations_labels_point_y_forecast,
                     },
-                    text: "dogs",
+                    text: forecast_condition[0],
                     align: "left",
                     x: 10,
                     y: 0,
