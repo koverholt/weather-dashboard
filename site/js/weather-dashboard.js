@@ -557,3 +557,5 @@ xhr.onload = function () {
             },
         });
 };
+
+$("spinner1").style.display = "none";

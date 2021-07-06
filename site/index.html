@@ -24,10 +24,13 @@
   </head>
 
   <body>
-
-    <div class="container" id="app" v-cloak>
-
-      <nav class="navbar navbar-dark bg-dark">
+    <div class="container" id="app">
+      <div class="d-flex justify-content-center" v-if="false">
+        <div class="spinner-border m-5" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+      </div>
+      <nav class="navbar navbar-dark bg-dark" v-cloak>
         <!-- Non-mobile screens -->
         <a class="navbar-brand text-truncate d-none d-sm-block" href="/">
           <i class="fas fa-cloud-sun"></i>
@@ -59,11 +62,11 @@
 
       <!-- Non-mobile screens -->
       <div class="row d-none d-sm-block">
-        <div class="container">
+        <div class="container" v-cloak>
           <div class="row">
             <div class="col text-center text-white bg-danger rounded m-1 p-3">
               <h5>
-                {{ current_temperature }} °F ({{ current_apparent_temperature }} °F)
+                {{ current_temperature }} &deg;F ({{ current_apparent_temperature }} &deg;F)
               </h5>
               <p>Current Temperature</p>
               <div class="icon"><i class="fas fa-thermometer-three-quarters"></i></div>
@@ -84,7 +87,7 @@
 
       <!-- Mobile screens -->
       <div class="row d-block d-sm-none">
-        <div class="container">
+        <div class="container" v-cloak>
           <div class="row">
             <div class="col text-center text-white bg-danger rounded m-1 p-3">
               <h5>
