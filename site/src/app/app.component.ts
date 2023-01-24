@@ -68,6 +68,8 @@ export class AppComponent {
     var input_location = params.get("location") || "Austin, TX"
     var input = { "location": input_location };
 
+    // Request
+
     var xhr = new XMLHttpRequest();
     var self = this;
     xhr.open("POST", "https://us-central1-koverholt-apps-304316.cloudfunctions.net/weather-dashboard");
