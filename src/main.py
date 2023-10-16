@@ -1,27 +1,28 @@
-import json
 import os
 import requests
 import sys
-import numpy as np
 import pandas as pd
-from darksky.api import DarkSky, DarkSkyAsync
-from darksky.types import languages, units, weather
 from datetime import timedelta
-from delorean import Delorean
+from delorean import Delorean, epoch
+from flask import Flask, request, jsonify
+from flask_cors import CORS, cross_origin
+
+app = Flask(__name__)
+cors = CORS(app)
 
 try:
-    DARKSKY_API_KEY = os.environ["DARKSKY_API_KEY"]
+    API_KEY = os.environ["API_KEY"]
 except KeyError:
-    print("Missing DARKSKY_API_KEY. Exiting.")
+    print("Missing API_KEY. Exiting.")
     sys.exit()
 
 def forecast(location):
-    r = requests.get("https://nominatim.openstreetmap.org/search/" + location + "?format=json&limit=1&addressdetails=1")
+    r = requests.get("https://nominatim.openstreetmap.org/search?q={location}&format=json&limit=1&addressdetails=1".format(location=location))
     data = r.json()
 
     if not data:
         location = "Austin, TX"
-        r = requests.get("https://nominatim.openstreetmap.org/search/" + location + "?format=json&limit=1&addressdetails=1")
+        r = requests.get("https://nominatim.openstreetmap.org/search?q={location}&format=json&limit=1&addressdetails=1".format(location=location))
         data = r.json()
         location_not_found = True
     else:
@@ -37,38 +38,30 @@ def forecast(location):
     state = data[0]["address"].get("state", None)
     country = data[0]["address"].get("country", None)
 
-    darksky = DarkSky(DARKSKY_API_KEY)
+    r = requests.get("https://api.pirateweather.net/forecast/{API_KEY}/{LAT},{LON}?exclude=minutely,alerts&units=us&extend=hourly".format(API_KEY=API_KEY, LAT=lat, LON=lon))
+    forecast = r.json()
 
-    forecast = darksky.get_forecast(
-        lat,
-        lon,
-        extend=True,
-        lang=languages.ENGLISH,
-        values_units=units.US,
-        exclude=[weather.MINUTELY, weather.ALERTS],
-    )
-
-    timezone = forecast.timezone
+    timezone = forecast["timezone"]
 
     current_datetime = Delorean().shift(timezone)
     current_day = Delorean().shift(timezone).truncate("day")
     current_hour = Delorean().shift(timezone).truncate("hour")
 
-    forecast_past = darksky.get_time_machine_forecast(
-        lat,
-        lon,
-        extend=True,
-        lang=languages.ENGLISH,
-        values_units=units.US,
-        exclude=[weather.MINUTELY, weather.ALERTS],
-        time=current_day.datetime,
-    )
+    # forecast_past = darksky.get_time_machine_forecast(
+    #     lat,
+    #     lon,
+    #     extend=True,
+    #     lang=languages.ENGLISH,
+    #     values_units=units.US,
+    #     exclude=[weather.MINUTELY, weather.ALERTS],
+    #     time=current_day.datetime,
+    # )
 
     current_time = current_datetime.epoch * 1000
-    current_temperature = round(forecast.currently.temperature)
-    current_apparent_temperature = round(forecast.currently.apparent_temperature)
-    current_humidity = round(forecast.currently.humidity * 100)
-    current_wind_speed = round(forecast.currently.wind_speed)
+    current_temperature = round(forecast["currently"]["temperature"])
+    current_apparent_temperature = round(forecast["currently"]["apparentTemperature"])
+    current_humidity = round(forecast["currently"]["humidity"] * 100)
+    current_wind_speed = round(forecast["currently"]["windSpeed"])
 
     forecast_hours = [((current_hour + timedelta(hours=i)).epoch) * 1000 for i in range(169)]
     forecast_hours_past = [((current_day + timedelta(hours=i)).epoch) * 1000 for i in range(23)]
@@ -76,39 +69,39 @@ def forecast(location):
     forecast_days_text = [(current_day + timedelta(days=i)).date.strftime("%a %b %-d") for i in range(7)]
     forecast_morning = [((current_day + timedelta(hours=6, days=i)).epoch) * 1000 for i in range(7)]
 
-    daily_forecast_icons = [forecast.daily.data[i].icon for i in range(7)]
-    daily_temperature_high = [round(forecast.daily.data[i].temperature_high) for i in range(7)]
-    daily_temperature_high_time = [Delorean(forecast.daily.data[i].temperature_high_time).epoch * 1000 for i in range(7)]
-    daily_temperature_low = [round(forecast.daily.data[i].temperature_low) for i in range(7)]
-    daily_temperature_low_time = [Delorean(forecast.daily.data[i].temperature_low_time).epoch * 1000 for i in range(7)]
-    daily_precip_intensity = [round(forecast.daily.data[i].precip_intensity * 24, 1) for i in range(7)]
+    daily_forecast_icons = [forecast["daily"]["data"][i]["icon"] for i in range(7)]
+    daily_temperature_high = [round(forecast["daily"]["data"][i]["temperatureHigh"]) for i in range(7)]
+    daily_temperature_high_time = [forecast["daily"]["data"][i]["temperatureHighTime"] * 1000 for i in range(7)]
+    daily_temperature_low = [round(forecast["daily"]["data"][i]["temperatureLow"]) for i in range(7)]
+    daily_temperature_low_time = [forecast["daily"]["data"][i]["temperatureLowTime"] * 1000 for i in range(7)]
+    daily_precip_intensity = [round(forecast["daily"]["data"][i]["precipIntensity"] * 24, 1) for i in range(7)]
 
-    hourly_temperature_past = [round(forecast_past.hourly.data[i].temperature) for i in range(23)]
-    hourly_humidity_past = [round(forecast_past.hourly.data[i].humidity * 100) for i in range(23)]
-    hourly_cloud_cover_past = [round(forecast_past.hourly.data[i].cloud_cover * 100) for i in range(23)]
-    hourly_precip_probability_past = [round(forecast_past.hourly.data[i].precip_probability * 100) for i in range(23)]
-    hourly_wind_speed_past = [round(forecast_past.hourly.data[i].wind_speed) for i in range(23)]
+    # hourly_temperature_past = [round(forecast_past.hourly["data"][i].temperature) for i in range(23)]
+    # hourly_humidity_past = [round(forecast_past.hourly["data"][i].humidity * 100) for i in range(23)]
+    # hourly_cloud_cover_past = [round(forecast_past.hourly["data"][i].cloud_cover * 100) for i in range(23)]
+    # hourly_precip_probability_past = [round(forecast_past.hourly["data"][i].precip_probability * 100) for i in range(23)]
+    # hourly_wind_speed_past = [round(forecast_past.hourly["data"][i].wind_speed) for i in range(23)]
 
-    hourly_temperature = [round(forecast.hourly.data[i].temperature) for i in range(169)]
-    hourly_humidity = [round(forecast.hourly.data[i].humidity * 100) for i in range(169)]
-    hourly_cloud_cover = [round(forecast.hourly.data[i].cloud_cover * 100) for i in range(169)]
-    hourly_precip_probability = [round(forecast.hourly.data[i].precip_probability * 100) for i in range(169)]
-    hourly_wind_speed = [round(forecast.hourly.data[i].wind_speed) for i in range(169)]
+    hourly_temperature = [round(forecast["hourly"]["data"][i]["temperature"]) for i in range(169)]
+    hourly_humidity = [round(forecast["hourly"]["data"][i]["humidity"] * 100) for i in range(169)]
+    hourly_cloud_cover = [round(forecast["hourly"]["data"][i]["cloudCover"] * 100) for i in range(169)]
+    hourly_precip_probability = [round(forecast["hourly"]["data"][i]["precipProbability"] * 100) for i in range(169)]
+    hourly_wind_speed = [round(forecast["hourly"]["data"][i]["windSpeed"]) for i in range(169)]
 
     zipped_temperature_high = ([list(a) for a in zip(daily_temperature_high_time, daily_temperature_high)])
     zipped_temperature_low = ([list(a) for a in zip(daily_temperature_low_time, daily_temperature_low)])
 
-    df_past = pd.DataFrame({
-        "hourly_temperature": hourly_temperature_past,
-        "hourly_humidity": hourly_humidity_past,
-        "hourly_cloud_cover": hourly_cloud_cover_past,
-        "hourly_precip_probability": hourly_precip_probability_past,
-        "hourly_wind_speed": hourly_wind_speed_past,
-        },
-        index=forecast_hours_past,
-    )
+    # df_past = pd.DataFrame({
+    #     "hourly_temperature": hourly_temperature_past,
+    #     "hourly_humidity": hourly_humidity_past,
+    #     "hourly_cloud_cover": hourly_cloud_cover_past,
+    #     "hourly_precip_probability": hourly_precip_probability_past,
+    #     "hourly_wind_speed": hourly_wind_speed_past,
+    #     },
+    #     index=forecast_hours_past,
+    # )
 
-    df_future = pd.DataFrame({
+    df = pd.DataFrame({
         "hourly_temperature": hourly_temperature,
         "hourly_humidity": hourly_humidity,
         "hourly_cloud_cover": hourly_cloud_cover,
@@ -118,7 +111,7 @@ def forecast(location):
         index=forecast_hours,
     )
 
-    df = df_past.combine_first(df_future)
+    # df = df_past.combine_first(df_future)
 
     zipped_temperature = df.reset_index()[["index", "hourly_temperature"]].values.tolist()
     zipped_humidity = df.reset_index()[["index", "hourly_humidity"]].values.tolist()
@@ -131,6 +124,7 @@ def forecast(location):
         "village": village,
         "town": town,
         "city": city,
+        "postcode": postcode,
         "county": county,
         "state": state,
         "country": country,
@@ -160,32 +154,12 @@ def forecast(location):
 
     return resp
 
-def apply(request):
-    """Responds to any HTTP request.
-    Args:
-        request (flask.Request): HTTP request object.
-    Returns:
-        The response text or any set of values that can be turned into a
-        Response object using
-        `make_response <http://flask.pocoo.org/docs/1.0/api/#flask.Flask.make_response>`.
-    """
-
-    if request.method == 'OPTIONS':
-        headers = {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET',
-            'Access-Control-Allow-Headers': 'Content-Type',
-            'Access-Control-Max-Age': '3600'
-        }
-        return ('', 204, headers)
-
-    headers = {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST',
-        'Access-Control-Allow-Headers': 'Content-Type'
-    }
-
+@app.route("/", methods=["GET", "POST"])
+def apply():
     request_json = request.get_json(silent=True)
     location = request_json.get("location", "Austin, TX")
     result = forecast(location)
-    return (result, 200, headers)
+    return (result, 200)
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=True)
