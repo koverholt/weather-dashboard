@@ -57,6 +57,9 @@ def forecast(location):
     #     time=current_day.datetime,
     # )
 
+    r_past = requests.get("https://api.pirateweather.net/forecast/{API_KEY}/{LAT},{LON},{TIME}?exclude=minutely,alerts&units=us&extend=hourly".format(API_KEY=API_KEY, LAT=lat, LON=lon, TIME=current_day.datetime))
+    forecast_past = r.json()
+
     current_time = current_datetime.epoch * 1000
     current_temperature = round(forecast["currently"]["temperature"])
     current_apparent_temperature = round(forecast["currently"]["apparentTemperature"])
@@ -76,11 +79,11 @@ def forecast(location):
     daily_temperature_low_time = [forecast["daily"]["data"][i]["temperatureLowTime"] * 1000 for i in range(7)]
     daily_precip_intensity = [round(forecast["daily"]["data"][i]["precipIntensity"] * 24, 1) for i in range(7)]
 
-    # hourly_temperature_past = [round(forecast_past.hourly["data"][i].temperature) for i in range(23)]
-    # hourly_humidity_past = [round(forecast_past.hourly["data"][i].humidity * 100) for i in range(23)]
-    # hourly_cloud_cover_past = [round(forecast_past.hourly["data"][i].cloud_cover * 100) for i in range(23)]
-    # hourly_precip_probability_past = [round(forecast_past.hourly["data"][i].precip_probability * 100) for i in range(23)]
-    # hourly_wind_speed_past = [round(forecast_past.hourly["data"][i].wind_speed) for i in range(23)]
+    hourly_temperature_past = [round(forecast_past["hourly"]["data"][i]["temperature"]) for i in range(23)]
+    hourly_humidity_past = [round(forecast_past["hourly"]["data"][i]["humidity"] * 100) for i in range(23)]
+    hourly_cloud_cover_past = [round(forecast_past["hourly"]["data"][i]["cloudCover"] * 100) for i in range(23)]
+    hourly_precip_probability_past = [round(forecast_past["hourly"]["data"][i]["precipProbability"] * 100) for i in range(23)]
+    hourly_wind_speed_past = [round(forecast_past["hourly"]["data"][i]["windSpeed"]) for i in range(23)]
 
     hourly_temperature = [round(forecast["hourly"]["data"][i]["temperature"]) for i in range(169)]
     hourly_humidity = [round(forecast["hourly"]["data"][i]["humidity"] * 100) for i in range(169)]
@@ -91,17 +94,17 @@ def forecast(location):
     zipped_temperature_high = ([list(a) for a in zip(daily_temperature_high_time, daily_temperature_high)])
     zipped_temperature_low = ([list(a) for a in zip(daily_temperature_low_time, daily_temperature_low)])
 
-    # df_past = pd.DataFrame({
-    #     "hourly_temperature": hourly_temperature_past,
-    #     "hourly_humidity": hourly_humidity_past,
-    #     "hourly_cloud_cover": hourly_cloud_cover_past,
-    #     "hourly_precip_probability": hourly_precip_probability_past,
-    #     "hourly_wind_speed": hourly_wind_speed_past,
-    #     },
-    #     index=forecast_hours_past,
-    # )
+    df_past = pd.DataFrame({
+        "hourly_temperature": hourly_temperature_past,
+        "hourly_humidity": hourly_humidity_past,
+        "hourly_cloud_cover": hourly_cloud_cover_past,
+        "hourly_precip_probability": hourly_precip_probability_past,
+        "hourly_wind_speed": hourly_wind_speed_past,
+        },
+        index=forecast_hours_past,
+    )
 
-    df = pd.DataFrame({
+    df_future = pd.DataFrame({
         "hourly_temperature": hourly_temperature,
         "hourly_humidity": hourly_humidity,
         "hourly_cloud_cover": hourly_cloud_cover,
@@ -111,7 +114,7 @@ def forecast(location):
         index=forecast_hours,
     )
 
-    # df = df_past.combine_first(df_future)
+    df = df_past.combine_first(df_future)
 
     zipped_temperature = df.reset_index()[["index", "hourly_temperature"]].values.tolist()
     zipped_humidity = df.reset_index()[["index", "hourly_humidity"]].values.tolist()
